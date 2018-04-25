@@ -19,8 +19,11 @@ class Player(pg.sprite.Sprite):
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
         self.stopped_by_wall = False
-        self.jumping = False
         self.ground = True
+
+        self.can_move_up = True
+
+        self.left = False
 
     def jump(self):
         # jump only if standing on a platform
@@ -34,25 +37,34 @@ class Player(pg.sprite.Sprite):
 
     def update(self):
 
-        hits = pg.sprite.spritecollide(self, self.game.platforms, False)
         keys = pg.key.get_pressed()
+        if keys[pg.K_LEFT]:
+            self.image = pg.image.load("perso_gauche.png").convert_alpha()
+            self.left = True
+        if keys[pg.K_RIGHT] and MovesWithKeys.can_move_right:
+            self.image = pg.image.load("perso_droite.png").convert_alpha()
+            self.left = False
+
+        hits = pg.sprite.spritecollide(self, self.game.platforms, False)
         if self.pos.y == GROUND_y:
             self.ground = True
-        keys = pg.key.get_pressed()
+
+        if not self.can_move_up:  # player bumps down if hits platform while jumping
+            self.vel.y = 0
 
         ##        if self.ground and keys[pg.K_RIGHT] and not keys[pg.K_UP]:
         ##                        self.pos.x = hits[0].rect.left
         #        if hits and pg.sprite.collide_rect(self.pos.x,hits[0].rect.left) :
         #           if self.rect.right >= hits[0].rect.left:
         #                print('yayy')
-        if self.vel.y == 0 and self.ground and keys[pg.K_LEFT]:
-            self.pos.y = GROUND_y
-            print('yo')
-            if keys[pg.K_LEFT]:
-                self.vel(0, 0)
+        ##        if self.vel.y == 0 and self.ground and keys[pg.K_LEFT]:
+        ##            self.pos.y = GROUND_y
+        ##            print('yo')
+        ##            if keys[pg.K_LEFT]:
+        ##                self.vel(0, 0)
         #                       print('miauuu')
-        elif self.vel.y > 0 and hits:
-            self.pos.y = hits[0].rect.top
+        if self.vel.y > 0 and hits:  # and
+            self.pos.y = hits[0].rect.top  # that says it should stay on top
             self.vel.y = 0
             self.ground = True
 
@@ -73,8 +85,8 @@ class Player(pg.sprite.Sprite):
             self.pos.x = 0
         if self.pos.x < 0:
             self.pos.x = WIDTH
-        ##        if self.pos.y > 540:
-        ##            self.pos.y = 540
+        # if self.pos.y > 530:
+        #             self.pos.y = 530
 
         self.rect.midbottom = self.pos
 
@@ -199,24 +211,18 @@ class Background(MovesWithKeys):
         self.rect.midbottom = self.pos
 
 
-class Cloud(MovesWithKeys):
+class Panneau(MovesWithKeys):
     def __init__(self, game):
         pg.sprite.Sprite.__init__(self)
         self.game = game
-        self.image = pg.image.load("cloud.png").convert_alpha()
+        self.image = pg.image.load("panneau.png").convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH / 2, HEIGHT / 2)
-        self.pos = vec(WIDTH / 2, HEIGHT / 2)
+        self.rect.x = 9600
+        self.rect.y = GROUND_y
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
-
-    ##    def jump(self):
-    ##        # jump only if standing on a platform
-    ##        self.rect.x += 1
-    ##        hits = pg.sprite.spritecollide(self, self.game.platforms, False)
-    ##        self.rect.x -= 1
-    ##        if hits:
-    ##            self.vel.y = -20
+        #       self.rect.center = (WIDTH / 2, HEIGHT / 2)
+        self.pos = vec(9600, GROUND_y)
 
     def update(self):
         self.acc = vec(0, 0)
@@ -227,20 +233,22 @@ class Cloud(MovesWithKeys):
         # equations of motion
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
-        # wrap around the sides of the screen
-        if self.pos.x > WIDTH:
-            self.pos.x = 0
-        if self.pos.x < 0:
-            self.pos.x = WIDTH
 
         self.rect.midbottom = self.pos
 
 
 class Platform(MovesWithKeys):
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, type):
         pg.sprite.Sprite.__init__(self)
-        self.image = pg.Surface((width, height))
-        self.image.fill(YELLOW)
+
+        if type == 1:
+            self.image = pg.image.load("block_1.png").convert_alpha()
+        elif type == 2:
+            self.image = pg.image.load("block_2.png").convert_alpha()
+        else:
+            self.image = pg.Surface((9800, 60))
+            self.image.fill(YELLOW)
+
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -316,14 +324,14 @@ class Coin(MovesWithKeys):
 
 
 class Fireball(pg.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, a):
         pg.sprite.Sprite.__init__(self)
 
         self.image = pg.image.load("fireball.png").convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = ((WIDTH / 2) - 100, 0)
         self.pos = vec((WIDTH / 2) - 100, 0)
-        self.vel = vec(80, 0)
+        self.vel = vec(a, 0)
         self.acc = vec(0, 0)
         self.pos = vec(x, y)
         self.acc = vec(0, PLAYER_GRAV)
@@ -355,7 +363,8 @@ class Enemy_fire(pg.sprite.Sprite):
         self.acc = vec(0, 0)
         self.pos = vec(100, 100)
         self.acc = vec(0, PLAYER_GRAV)
-        self.velocity0 = 0
+
+    #       self.velocity0 = 0
 
     def update(self):
         self.acc = vec(0, PLAYER_GRAV)
@@ -366,7 +375,7 @@ class Enemy_fire(pg.sprite.Sprite):
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
 
-        self.velocity0 = self.vel
+#       self.velocity0 = self.vel
 ##        keys = pg.key.get_pressed()
 ##        if keys:
 ##          if keys[pg.K_RIGHT]:

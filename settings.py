@@ -17,14 +17,14 @@ GROUND_y = 540
 
 # Starting platforms
 # width = random.randrange(50, 100)
-PLATFORM_LIST = [(0, 540, 200, 40),
-                 (WIDTH * 4, HEIGHT, WIDTH * 8, 60),
-                 (WIDTH / 2 - 50, HEIGHT * 3 / 4, 100, 20)]
+PLATFORM_LIST = [(0, 540),
+                 (WIDTH / 2 - 50, HEIGHT * 3 / 4)]
 
-for i in range(1000, 10000, 200):
-    PLATFORM_LIST.append((500 + random.randrange(i, i + 100), random.randrange(100, 450), 100, 20))
+for i in range(1000, 10000, 400):
+    PLATFORM_LIST.append((500 + random.randrange(i, i + 100), random.randrange(250, 400)))
 
 ENEMY2_LIST = []
+
 ##print(ENEMY2_LIST) 
 ##ENEMY2_LIST.append((1531, 168))   #PLATFORM_LIST[random.randrange(0,len(PLATFORM_LIST)/2)]
 ##print(ENEMY2_LIST) 
@@ -49,13 +49,12 @@ FIRE_E.append(nb2[0])
 FIRE_E.append(nb2[1])
 #print(FIRE_E)
 
-BOX_LIST = []
+PLATFORM2_LIST = []
 for m in range(500, 10000, 1000):
     # platforms on bottom beyond the very first one
-    PLATFORM_LIST.append((500 + m, GROUND_y, 200, 40))
-    BOX_LIST.append((500 + m, GROUND_y, 200, 40))
+    PLATFORM2_LIST.append((500 + m, GROUND_y))
+  
 
-# print(BOX_LIST)
 COIN_LIST = []
 for n in range(1000, 10000, 200):
     COIN_LIST.append((500 + random.randrange(n, n + 900), 0))
@@ -67,7 +66,7 @@ for m in range(500, 10000, 1000):
 nb = []
 LIST_LIST = []
 for l in range(10):
-    nb = BOX_LIST[l]
+    nb = PLATFORM2_LIST[l]
     LIST_LIST.append((nb[0] + 1))
     nb = []
 #print(LIST_LIST)
