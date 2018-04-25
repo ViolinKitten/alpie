@@ -19,6 +19,7 @@ class Game:
         self.hit = 1
 
         self.score = 0
+        # I put a random comment in which is super-precious to me and I want to save it for 100 years!!!
         self.time1 = time.time()
 
     def text(self, surface, text, size, x, y):
